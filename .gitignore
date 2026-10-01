@@ -1,0 +1,10 @@
+# Ambiente e IDE
+.idea/
+.venv/
+__pycache__/
+*.pyc
+
+# Documentos locais, fora da entrega
+anotacoes.md
+DOCKER.md
+pyproject.toml
