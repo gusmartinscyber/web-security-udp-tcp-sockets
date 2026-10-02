@@ -32,7 +32,7 @@ def medir_pi(texto):
     return {
         "ok": True,
         "pi": estimativa,
-        "erro": abs(estimativa - math.pi),
+        "desvio": abs(estimativa - math.pi),
         "iteracoes": iteracoes,
         "segundos": segundos,
         "iteracoes_por_segundo": iteracoes / segundos,

@@ -101,7 +101,7 @@ python3 cliente_udp.py --host 10.0.99.150 --mensagem "pi"
 {
   "ok": true,
   "pi": 3.1415916535897743,
-  "erro": 1.0000000187915248e-06,
+  "desvio": 1.0000000187915248e-06,
   "iteracoes": 1000000,
   "segundos": 0.184,
   "iteracoes_por_segundo": 5434782.6
@@ -111,7 +111,8 @@ python3 cliente_udp.py --host 10.0.99.150 --mensagem "pi"
 - `pi` usa 1.000.000 de iterações, cerca de 0,2 s.
 - `pi <iteracoes>` escolhe a quantidade, de 1 a 5.000.000.
 - O máximo leva cerca de 1 s, abaixo do timeout de 3 s do cliente.
-- `erro` compara o resultado com `math.pi`; a série garante erro igual a 1/iterações.
+- `desvio` compara o resultado com `math.pi`; a série garante desvio igual a 1/iterações.
+- O campo `erro` continua reservado às recusas, sempre com texto. Por isso a precisão usa `desvio`, e não `erro`.
 - `iteracoes_por_segundo` é a medida direta da capacidade da máquina.
 
 A série de Leibniz é determinística: a mesma quantidade de iterações produz o mesmo π, então a diferença entre máquinas aparece apenas no tempo. O cálculo é sequencial de propósito: mede um núcleo, sem esgotar o servidor. O limite existe porque o servidor TCP atende um cliente por vez e um pedido longo bloquearia os demais.
