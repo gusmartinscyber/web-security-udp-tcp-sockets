@@ -1,8 +1,42 @@
 import json
+import math
 import socket
+import time
 
 PORTA = 1200
 LIMITE = 1024
+ITERACOES_PADRAO = 1_000_000
+ITERACOES_MAXIMAS = 5_000_000
+
+
+def medir_pi(texto):
+    partes = texto.split()
+    if len(partes) == 1:
+        iteracoes = ITERACOES_PADRAO
+    elif len(partes) == 2 and partes[1].isdigit():
+        iteracoes = int(partes[1])
+    else:
+        iteracoes = 0
+    if not 1 <= iteracoes <= ITERACOES_MAXIMAS:
+        raise ValueError(
+            f"Use 'pi' ou 'pi <iteracoes>', de 1 a {ITERACOES_MAXIMAS}."
+        )
+    soma = 0.0
+    sinal = 1.0
+    inicio = time.perf_counter()
+    for k in range(iteracoes):
+        soma += sinal / (2 * k + 1)
+        sinal = -sinal
+    segundos = time.perf_counter() - inicio
+    estimativa = 4.0 * soma
+    return {
+        "ok": True,
+        "pi": estimativa,
+        "erro": abs(estimativa - math.pi),
+        "iteracoes": iteracoes,
+        "segundos": segundos,
+        "iteracoes_por_segundo": iteracoes / segundos,
+    }
 
 
 def analisar(dados):
@@ -13,6 +47,8 @@ def analisar(dados):
         raise ValueError("O texto está vazio.")
     if "\n" in texto or "\r" in texto:
         raise ValueError("Envie apenas uma linha de texto.")
+    if texto.strip() == "pi" or texto.strip().startswith("pi "):
+        return medir_pi(texto.strip())
     return {
         "ok": True,
         "texto_maiusculo": texto.upper(),

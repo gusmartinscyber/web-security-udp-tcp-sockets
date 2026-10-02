@@ -89,6 +89,35 @@ O servidor entrega o resultado como objeto JSON. O cliente decodifica, mostra o 
 
 Os clientes conferem antes de enviar. Os servidores conferem de novo, porque qualquer remetente pode escrever no socket.
 
+## Comando pi
+
+Além de analisar texto, os servidores aceitam `pi`, que calcula π pela série de Leibniz e cronometra o esforço. O caminho é o mesmo do texto: a mensagem vai no datagrama ou na linha do TCP, e a resposta volta no mesmo JSON.
+
+```bash
+python3 cliente_udp.py --host 10.0.99.150 --mensagem "pi"
+```
+
+```json
+{
+  "ok": true,
+  "pi": 3.1415916535897743,
+  "erro": 1.0000000187915248e-06,
+  "iteracoes": 1000000,
+  "segundos": 0.184,
+  "iteracoes_por_segundo": 5434782.6
+}
+```
+
+- `pi` usa 1.000.000 de iterações, cerca de 0,2 s.
+- `pi <iteracoes>` escolhe a quantidade, de 1 a 5.000.000.
+- O máximo leva cerca de 1 s, abaixo do timeout de 3 s do cliente.
+- `erro` compara o resultado com `math.pi`; a série garante erro igual a 1/iterações.
+- `iteracoes_por_segundo` é a medida direta da capacidade da máquina.
+
+A série de Leibniz é determinística: a mesma quantidade de iterações produz o mesmo π, então a diferença entre máquinas aparece apenas no tempo. O cálculo é sequencial de propósito: mede um núcleo, sem esgotar o servidor. O limite existe porque o servidor TCP atende um cliente por vez e um pedido longo bloquearia os demais.
+
+O comando só é reconhecido quando a mensagem é `pi` ou começa com `pi `, nessa caixa. `pizza` continua sendo analisada como texto.
+
 ## UDP: como os dados circulam
 
 1. `bind()` reserva a porta 1200.
@@ -125,3 +154,7 @@ Verificados com sockets reais na porta 1200, com os dois servidores ativos ao me
 - Cliente legítimo depois das falhas: resposta normal, o que confirma que o servidor não caiu.
 - Datagrama acima do limite, UTF-8 inválido e texto só com espaços: chegam como `ok` falso com `erro`.
 - `straße` → `STRASSE`: 6 caracteres na origem, 7 no texto em maiúsculas.
+- `pi` nos dois protocolos: 1.000.000 de iterações, 0,13 s no UDP e 0,15 s no TCP na máquina local.
+- `pi 5000000`: 0,68 s na máquina local e 0,92 s dentro do container do servidor.
+- `pi 0`, `pi abc` e `pi 6000000`: recusados com a mensagem de uso.
+- `pizza`: analisada como texto, confirmando que o comando não captura palavras parecidas.
